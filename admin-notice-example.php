@@ -82,9 +82,9 @@ function display_general_info_notice(): void {
     $settings_page_url = get_plugin_settings_page_url();
 ?>
     <div class="notice notice-info">
-        <p><em><?php esc_html_e( 'Admin Notice Example:', 'admin-notice-example' ); ?></em></p>
-        <p><?php esc_html_e( 'This plugin showcases various admin notices.', 'admin-notice-example' ); ?></p>
-        <p><a href="<?php echo esc_url( $settings_page_url ); ?>"><?php esc_html_e( 'Settings page', 'admin-notice-example' ); ?></a></p>
+        <p><em><?php esc_html_e( 'Admin Notice Example:', 'admin-notice-example' ); ?></em>
+        <?php esc_html_e( 'This plugin showcases various admin notices.', 'admin-notice-example' ); ?>
+        <a href="<?php echo esc_url( $settings_page_url ); ?>"><?php esc_html_e( 'Settings page', 'admin-notice-example' ); ?></a></p>
     </div>
 <?php
 }
@@ -96,12 +96,12 @@ function display_general_info_notice(): void {
  */
 function display_transient_reset_warning(): void {
     if ( false !== get_transient( 'admin_notice_example_dismissed' ) ) {
-        $reset_url = esc_url( add_query_arg( 'reset_admin_notice_example', '1', get_plugin_settings_page_url() ) );
+        $reset_url = add_query_arg( 'reset_admin_notice_example', '1', get_plugin_settings_page_url() );
 ?>
         <div class="notice notice-success">
             <p><em><?php esc_html_e( 'Admin Notice Example:', 'admin-notice-example' ); ?></em> 
             <?php esc_html_e( 'The success notice was dismissed.', 'admin-notice-example' ); ?>
-            <a href="<?php echo $reset_url; ?>"><?php esc_html_e( 'Reset and display again.', 'admin-notice-example' ); ?></a></p>
+            <a href="<?php echo esc_url( $reset_url ); ?>"><?php esc_html_e( 'Reset and display again.', 'admin-notice-example' ); ?></a></p>
         </div>
 <?php
     }
