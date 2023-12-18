@@ -52,9 +52,10 @@ function display_dismissible_success_notice(): void {
     if ( false === get_transient( 'admin_notice_example_dismissed' ) ) {
         $dismiss_url = esc_url( add_query_arg( 'dismiss_admin_notice_example', '1' ) );
 ?>
-        <div class="notice notice-success is-dismissible">
+        <div class="notice notice-warning">
             <p><em><?php esc_html_e( 'Admin Notice Example:', 'admin-notice-example' ); ?></em> 
             <?php esc_html_e( 'This is a dismissible success notice.', 'admin-notice-example' ); ?>
+            
             <a href="<?php echo $dismiss_url; ?>"><?php esc_html_e( 'Dismiss', 'admin-notice-example' ); ?></a></p>
         </div>
 <?php
@@ -97,7 +98,7 @@ function display_transient_reset_warning(): void {
     if ( false !== get_transient( 'admin_notice_example_dismissed' ) ) {
         $reset_url = esc_url( add_query_arg( 'reset_admin_notice_example', '1', get_plugin_settings_page_url() ) );
 ?>
-        <div class="notice notice-warning">
+        <div class="notice notice-success">
             <p><em><?php esc_html_e( 'Admin Notice Example:', 'admin-notice-example' ); ?></em> 
             <?php esc_html_e( 'The success notice was dismissed.', 'admin-notice-example' ); ?>
             <a href="<?php echo $reset_url; ?>"><?php esc_html_e( 'Reset and display again.', 'admin-notice-example' ); ?></a></p>
