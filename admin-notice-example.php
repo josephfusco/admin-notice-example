@@ -49,17 +49,19 @@ function render_settings_page(): void {
  * Demonstrates using transients for temporary data storage.
  */
 function display_dismissible_success_notice(): void {
-    if ( false === get_transient( 'admin_notice_example_dismissed' ) ) {
-        $dismiss_url = esc_url( add_query_arg( 'dismiss_admin_notice_example', '1' ) );
-?>
+    // Guard clause for already dismissed notice.
+    if ( get_transient( 'admin_notice_example_dismissed' ) !== false ) {
+        return;
+    }
+
+    $dismiss_url = add_query_arg( 'dismiss_admin_notice_example', '1' );
+    ?>
         <div class="notice notice-warning">
             <p><em><?php esc_html_e( 'Admin Notice Example:', 'admin-notice-example' ); ?></em> 
             <?php esc_html_e( 'This is a dismissible success notice.', 'admin-notice-example' ); ?>
-            
-            <a href="<?php echo $dismiss_url; ?>"><?php esc_html_e( 'Dismiss', 'admin-notice-example' ); ?></a></p>
+            <a href="<?php echo esc_url( $dismiss_url ); ?>"><?php esc_html_e( 'Dismiss', 'admin-notice-example' ); ?></a></p>
         </div>
-<?php
-    }
+    <?php
 }
 
 /**
@@ -68,9 +70,12 @@ function display_dismissible_success_notice(): void {
  * This function sets a transient to remember the dismissal status of the notice.
  */
 function handle_dismissal_of_success_notice(): void {
-    if ( isset( $_GET['dismiss_admin_notice_example'] ) && '1' === $_GET['dismiss_admin_notice_example'] ) {
-        set_transient( 'admin_notice_example_dismissed', true, DAY_IN_SECONDS ); // 24 hours
+    // Guard clause for non-dismissal case.
+    if ( ! isset( $_GET['dismiss_admin_notice_example'] ) || $_GET['dismiss_admin_notice_example'] !== '1' ) {
+        return;
     }
+
+    set_transient( 'admin_notice_example_dismissed', true, DAY_IN_SECONDS ); // 24 hours
 }
 
 /**
@@ -95,16 +100,24 @@ function display_general_info_notice(): void {
  * This function provides a link to reset the notice display status.
  */
 function display_transient_reset_warning(): void {
-    if ( false !== get_transient( 'admin_notice_example_dismissed' ) ) {
-        $reset_url = add_query_arg( 'reset_admin_notice_example', '1', get_plugin_settings_page_url() );
-?>
-        <div class="notice notice-success">
-            <p><em><?php esc_html_e( 'Admin Notice Example:', 'admin-notice-example' ); ?></em> 
-            <?php esc_html_e( 'The success notice was dismissed.', 'admin-notice-example' ); ?>
-            <a href="<?php echo esc_url( $reset_url ); ?>"><?php esc_html_e( 'Reset and display again.', 'admin-notice-example' ); ?></a></p>
-        </div>
-<?php
+    // Guard clause for plugin scoped pages.
+    if ( ! is_plugin_scoped_page() ) {
+        return;
     }
+
+    // Guard clause for non-dismissed notice.
+    if ( get_transient( 'admin_notice_example_dismissed' ) === false ) {
+        return;
+    }
+
+    $reset_url = add_query_arg( 'reset_admin_notice_example', '1', get_plugin_settings_page_url() );
+?>
+    <div class="notice notice-success">
+        <p><em><?php esc_html_e( 'Admin Notice Example:', 'admin-notice-example' ); ?></em> 
+        <?php esc_html_e( 'The success notice was dismissed.', 'admin-notice-example' ); ?>
+        <a href="<?php echo esc_url( $reset_url ); ?>"><?php esc_html_e( 'Reset and display again.', 'admin-notice-example' ); ?></a></p>
+    </div>
+<?php
 }
 
 /**
@@ -114,14 +127,17 @@ function display_transient_reset_warning(): void {
  * This function redirects the user after resetting the transient, ensuring the URL is clean.
  */
 function process_transient_reset_action(): void {
-    if ( isset( $_GET['reset_admin_notice_example'] ) && '1' === $_GET['reset_admin_notice_example'] ) {
-        delete_transient( 'admin_notice_example_dismissed' );
-
-        $redirect_url = remove_query_arg( 'reset_admin_notice_example', get_plugin_settings_page_url() );
-        
-        wp_redirect( $redirect_url );
-        exit;
+    // Guard clause for unset or incorrect $_GET parameter.
+    if ( ! isset( $_GET['reset_admin_notice_example'] ) || $_GET['reset_admin_notice_example'] !== '1' ) {
+        return;
     }
+
+    delete_transient( 'admin_notice_example_dismissed' );
+
+    $redirect_url = remove_query_arg( 'reset_admin_notice_example', get_plugin_settings_page_url() );
+    
+    wp_redirect( $redirect_url );
+    exit;
 }
 
 /**
@@ -133,17 +149,24 @@ function get_plugin_settings_page_url(): string {
 }
 
 /**
- * Checks if the current admin page is the plugin's settings page or the WordPress plugins page.
+ * Checks if the current admin page is within the scope of the plugin's pages.
  * 
- * @return bool
+ * @return bool True if the current page is within scope of the plugin's pages.
  */
-function is_plugin_pages(): bool {
+function is_plugin_scoped_page(): bool {
     $screen = get_current_screen();
 
-    // Check if the current screen is the plugin's settings page or the WordPress plugins page.
-    if ( $screen && ( $screen->id === "settings_page_admin-notice-example-settings" || $screen->id === "plugins" ) ) {
-        return true;
+    // Guard clause for invalid screen.
+    if ( ! $screen ) {
+        return false;
     }
 
-    return false;
+    $allowed_pages = [
+        "settings_page_admin-notice-example-settings",
+        "plugins"
+    ];
+
+    $current_page_id = $screen->id;
+
+    return in_array( $current_page_id, $allowed_pages, true );
 }
