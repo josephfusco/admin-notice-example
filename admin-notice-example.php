@@ -68,7 +68,7 @@ function display_dismissible_success_notice(): void {
  */
 function handle_dismissal_of_success_notice(): void {
     if ( isset( $_GET['dismiss_admin_notice_example'] ) && '1' === $_GET['dismiss_admin_notice_example'] ) {
-        set_transient( 'admin_notice_example_dismissed', true, DAY_IN_SECONDS * 24 );
+        set_transient( 'admin_notice_example_dismissed', true, DAY_IN_SECONDS ); // 24 hours
     }
 }
 
@@ -140,7 +140,7 @@ function is_plugin_pages(): bool {
     $screen = get_current_screen();
 
     // Check if the current screen is the plugin's settings page or the WordPress plugins page.
-    if ($screen && ($screen->id === "settings_page_admin-notice-example-settings" || $screen->id === "plugins")) {
+    if ( $screen && ( $screen->id === "settings_page_admin-notice-example-settings" || $screen->id === "plugins" ) ) {
         return true;
     }
 
